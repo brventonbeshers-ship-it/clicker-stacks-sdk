@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUserClicks = exports.getTotalClicks = exports.getLeaderboard = exports.createTapCall = exports.callReadOnly = exports.DEFAULT_CONFIG = exports.ClickerClient = void 0;
+var client_1 = require("./client");
+Object.defineProperty(exports, "ClickerClient", { enumerable: true, get: function () { return client_1.ClickerClient; } });
+Object.defineProperty(exports, "DEFAULT_CONFIG", { enumerable: true, get: function () { return client_1.DEFAULT_CONFIG; } });
+Object.defineProperty(exports, "callReadOnly", { enumerable: true, get: function () { return client_1.callReadOnly; } });
+Object.defineProperty(exports, "createTapCall", { enumerable: true, get: function () { return client_1.createTapCall; } });
+Object.defineProperty(exports, "getLeaderboard", { enumerable: true, get: function () { return client_1.getLeaderboard; } });
+Object.defineProperty(exports, "getTotalClicks", { enumerable: true, get: function () { return client_1.getTotalClicks; } });
+Object.defineProperty(exports, "getUserClicks", { enumerable: true, get: function () { return client_1.getUserClicks; } });

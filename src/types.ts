@@ -13,6 +13,12 @@ export interface LeaderEntry {
   clicks: number;
 }
 
+export interface ReadOnlyResponse {
+  okay?: boolean;
+  result?: string;
+  cause?: string;
+}
+
 export interface TapCall {
   contractAddress: string;
   contractName: string;
@@ -22,22 +28,3 @@ export interface TapCall {
   postConditions: [];
   network: StacksNetwork;
 }
-
-export const DEFAULT_CONFIG: Required<ClickerConfig>;
-
-export function callReadOnly(
-  functionName: string,
-  args?: string[],
-  config?: ClickerConfig
-): Promise<any>;
-
-export function getTotalClicks(config?: ClickerConfig): Promise<number>;
-
-export function getUserClicks(
-  userAddress: string,
-  config?: ClickerConfig
-): Promise<number>;
-
-export function getLeaderboard(config?: ClickerConfig): Promise<LeaderEntry[]>;
-
-export function createTapCall(config?: ClickerConfig): TapCall;
