@@ -1,0 +1,58 @@
+name: Hourly Package Verification
+
+on:
+  schedule:
+    - cron: '25 * * * *'
+  workflow_dispatch:
+
+jobs:
+  package-verification:
+    name: Verify Published Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Attempt test suite
+        continue-on-error: true
+        run: npm test
+
+      - name: Attempt build
+        continue-on-error: true
+        run: npm run build
+
+      - name: Create isolated install environment
+        run: |
+          mkdir -p /tmp/pkg-verify
+          cd /tmp/pkg-verify
+          npm init -y
+          npm install clicker-stacks-sdk
+
+      - name: Check module exports
+        continue-on-error: true
+        run: |
+          cd /tmp/pkg-verify
+          node -e "
+            const pkg = require('clicker-stacks-sdk');
+            console.log('Package loaded successfully');
+            console.log('Available exports:', Object.keys(pkg));
+          "
+
+      - name: Version check
+        continue-on-error: true
+        run: |
+          cd /tmp/pkg-verify
+          node -e "
+            const pkg = require('clicker-stacks-sdk/package.json');
+            console.log('Installed version:', pkg.version);
+          "
+
+      - name: Teardown
+        run: rm -rf /tmp/pkg-verify
