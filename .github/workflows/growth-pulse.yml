@@ -1,35 +1,39 @@
-name: Growth Pulse
+name: Scheduled SDK Health Check
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 concurrency:
-  group: growth-pulse
+  group: scheduled-clicker-stacks-sdk-health-check
   cancel-in-progress: true
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
-  growth-pulse:
+  scheduled-verify:
+    name: Verify clicker-stacks-sdk from npm
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 22
 
-      - name: Install and Check SDK (15x)
-        working-directory: ./growth-bot
-        run: |
-          for i in {1..15}; do
-            echo "--- Execution $i/15 ---"
-            rm -rf node_modules
-            npm install --prefer-online --no-package-lock
-            npm run start
-          done
+      - name: Prepare clean environment
+        run: mkdir -p /tmp/clicker-stacks-sdk-check
+
+      - name: Initialize project
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: npm init -y
+
+      - name: Fetch clicker-stacks-sdk from registry
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: npm install clicker-stacks-sdk
+
+      - name: Confirm SDK require succeeds
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: node -e "const sdk = require('clicker-stacks-sdk'); console.log('Scheduled health check: clicker-stacks-sdk OK');"
+
+      - name: Show dependency tree
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: npm ls --all
