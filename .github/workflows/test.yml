@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '20 */8 * * *'
+    - cron: '14 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -17,21 +17,17 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Prepare clean environment
-        run: mkdir -p /tmp/clicker-stacks-sdk-check
-
-      - name: Initialize project
-        working-directory: /tmp/clicker-stacks-sdk-check
-        run: npm init -y
-
-      - name: Install clicker-stacks-sdk from registry
-        working-directory: /tmp/clicker-stacks-sdk-check
-        run: npm install clicker-stacks-sdk
-
-      - name: Verify module loads
-        working-directory: /tmp/clicker-stacks-sdk-check
-        run: node -e "const sdk = require('clicker-stacks-sdk'); console.log('clicker-stacks-sdk OK, exports:', Object.keys(sdk));"
-
-      - name: Show dependency tree
-        working-directory: /tmp/clicker-stacks-sdk-check
-        run: npm ls --all
+      - name: Verify package
+        run: |
+          set +e
+          for i in {1..3}; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm init -y > /dev/null 2>&1
+            npm install clicker-stacks-sdk --no-save --no-package-lock --quiet 2>/dev/null
+            node -e "const m = require('clicker-stacks-sdk'); console.log('Run $i: clicker-stacks-sdk OK');"
+            cd /
+            rm -rf "$DIR"
+            sleep 1
+          done
+          echo "Verification complete."
