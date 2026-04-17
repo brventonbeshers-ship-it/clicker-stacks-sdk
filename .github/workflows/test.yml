@@ -1,0 +1,37 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '20 */8 * * *'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Verify clicker-stacks-sdk from npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Prepare clean environment
+        run: mkdir -p /tmp/clicker-stacks-sdk-check
+
+      - name: Initialize project
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: npm init -y
+
+      - name: Install clicker-stacks-sdk from registry
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: npm install clicker-stacks-sdk
+
+      - name: Verify module loads
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: node -e "const sdk = require('clicker-stacks-sdk'); console.log('clicker-stacks-sdk OK, exports:', Object.keys(sdk));"
+
+      - name: Show dependency tree
+        working-directory: /tmp/clicker-stacks-sdk-check
+        run: npm ls --all
