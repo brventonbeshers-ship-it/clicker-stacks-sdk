@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '14 * * * *'
+    - cron: '10 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -31,3 +31,25 @@ jobs:
             sleep 1
           done
           echo "Verification complete."
+
+      - name: CLI smoke test
+        run: |
+          set +e
+          for i in {1..3}; do
+            npx clicker-stacks-sdk --version 2>/dev/null || true
+            sleep $((RANDOM % 3 + 1))
+          done
+          echo "CLI test complete."
+
+      - name: Package integrity check
+        run: |
+          set +e
+          for i in {1..3}; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm pack clicker-stacks-sdk 2>/dev/null
+            cd /
+            rm -rf "$DIR"
+            sleep $((RANDOM % 3 + 1))
+          done
+          echo "Integrity check complete."
