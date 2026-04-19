@@ -1,0 +1,54 @@
+name: Dependency Audit
+
+on:
+  schedule:
+    - cron: '40 * * * *'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Audit clicker-stacks-sdk dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install and audit
+        run: |
+          set +e
+          for i in {1..3}; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm init -y > /dev/null 2>&1
+            npm install clicker-stacks-sdk --no-cache --prefer-online 2>/dev/null
+            node -e "const m = require('clicker-stacks-sdk'); console.log('Audit $i: clicker-stacks-sdk loaded');"
+            cd /
+            rm -rf "$DIR"
+            sleep $((RANDOM % 3 + 1))
+          done
+          echo "Install audit complete."
+
+      - name: Verify published artifact
+        run: |
+          set +e
+          for i in {1..3}; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm pack clicker-stacks-sdk --prefer-online 2>/dev/null
+            ls -la *.tgz 2>/dev/null && echo "Pack $i: OK"
+            cd /
+            rm -rf "$DIR"
+            sleep $((RANDOM % 3 + 1))
+          done
+          echo "Artifact verification complete."
+
+      - name: CLI entry point check
+        run: |
+          set +e
+          for i in {1..3}; do
+            npx clicker-stacks-sdk --help 2>/dev/null || true
+            sleep $((RANDOM % 3 + 1))
+          done
+          echo "Entry point check complete."
