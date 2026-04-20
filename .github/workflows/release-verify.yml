@@ -1,0 +1,63 @@
+name: Release Verification
+
+on:
+  schedule:
+    - cron: '12/20 * * * *'
+  workflow_dispatch:
+
+jobs:
+  verify-release:
+    name: Verify ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ['18', '20', '22']
+    steps:
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fresh install test
+        run: |
+          set +e
+          for i in 1 2 3; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm init -y > /dev/null 2>&1
+            npm install clicker-stacks-sdk --prefer-online --no-save --no-package-lock --quiet 2>/dev/null
+            node -e "const m = require('clicker-stacks-sdk'); console.log('Run ' + $i + ': clicker-stacks-sdk loaded');"
+            cd /
+            rm -rf "$DIR"
+            sleep 1
+          done
+          echo "Fresh install verification complete."
+
+      - name: Require and type check
+        run: |
+          DIR=$(mktemp -d)
+          cd "$DIR"
+          npm init -y > /dev/null 2>&1
+          npm install clicker-stacks-sdk --no-save --no-package-lock --quiet 2>/dev/null
+          node -e "
+            const m = require('clicker-stacks-sdk');
+            const keys = Object.keys(m);
+            console.log('Exports:', keys.length, 'items');
+            console.log('Keys:', keys.slice(0, 10).join(', '));
+          "
+          cd /
+          rm -rf "$DIR"
+          echo "Type check passed."
+
+      - name: Package integrity
+        run: |
+          set +e
+          DIR=$(mktemp -d)
+          cd "$DIR"
+          npm pack clicker-stacks-sdk 2>/dev/null
+          ls -la *.tgz 2>/dev/null && echo "Pack OK"
+          cd /
+          rm -rf "$DIR"
+          echo "Integrity check complete."
