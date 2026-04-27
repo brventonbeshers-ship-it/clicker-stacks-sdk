@@ -1,0 +1,34 @@
+name: Scheduled SDK Health Check
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: scheduled-clicker-stacks-sdk-health-check
+  cancel-in-progress: true
+
+jobs:
+  scheduled-verify:
+    name: Verify clicker-stacks-sdk from npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Repeat install/verify cycles
+        run: |
+          set -e
+          for i in 1 2 3 4 5; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm init -y >/dev/null
+            npm install clicker-stacks-sdk --no-audit --no-fund --silent
+            node -e "const sdk = require('clicker-stacks-sdk'); console.log('cycle '+$i+': clicker-stacks-sdk OK');"
+            npm ls --all || true
+            cd / && rm -rf "$DIR"
+          done
