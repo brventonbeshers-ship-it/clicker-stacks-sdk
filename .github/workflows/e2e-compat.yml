@@ -32,7 +32,6 @@ jobs:
             cd / && rm -rf "$DIR"
           done
       - name: verify helper compatibility
-        if: matrix.cycle == 1
         run: |
           set +e
           HELPERS="vote-battle-utils clicker-stacks-helpers stacks-pix-utils dice-roll-helpers coin-flip-helpers number-guess-helpers"
@@ -40,6 +39,6 @@ jobs:
             DIR=$(mktemp -d)
             cd "$DIR"
             npm init -y >/dev/null 2>&1
-            npm install "$p" --no-audit --no-fund --no-save --prefer-online --silent 2>/dev/null && echo "ok helper $p" || echo "fail helper $p"
+            npm install "$p" --no-audit --no-fund --no-save --prefer-online --silent 2>/dev/null && echo "ok cycle ${{ matrix.cycle }} helper $p" || echo "fail cycle ${{ matrix.cycle }} helper $p"
             cd / && rm -rf "$DIR"
           done
