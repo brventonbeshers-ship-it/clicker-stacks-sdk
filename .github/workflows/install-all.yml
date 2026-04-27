@@ -1,0 +1,32 @@
+name: install-all
+on:
+  schedule:
+    - cron: '2/15 * * * *'
+  workflow_dispatch:
+concurrency:
+  group: install-all
+  cancel-in-progress: true
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        cycle: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: install all
+        run: |
+          set +e
+          PKGS="vote-battle-sdk clicker-stacks-sdk stacks-pix-sdk dice-roll-sdk coin-flip-sdk number-guess-sdk celo-vote-battle-sdk celo-pixels-sdk celo-clicker-sdk vote-battle-utils clicker-stacks-helpers stacks-pix-utils dice-roll-helpers coin-flip-helpers number-guess-helpers"
+          for p in $PKGS; do
+            DIR=$(mktemp -d)
+            cd "$DIR"
+            npm init -y >/dev/null 2>&1
+            npm install "$p" --no-audit --no-fund --no-save --prefer-online --silent 2>/dev/null && echo "ok cycle ${{ matrix.cycle }} $p" || echo "fail cycle ${{ matrix.cycle }} $p"
+            cd / && rm -rf "$DIR"
+          done
