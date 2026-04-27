@@ -22,7 +22,7 @@ jobs:
       - name: install all
         run: |
           set +e
-          PKGS="vote-battle-sdk clicker-stacks-sdk stacks-pix-sdk dice-roll-sdk coin-flip-sdk number-guess-sdk celo-vote-battle-sdk celo-pixels-sdk celo-clicker-sdk vote-battle-utils clicker-stacks-helpers stacks-pix-utils dice-roll-helpers coin-flip-helpers number-guess-helpers"
+          PKGS="vote-battle-sdk clicker-stacks-sdk stacks-pix-sdk dice-roll-sdk coin-flip-sdk number-guess-sdk celo-vote-battle-sdk celo-pixels-sdk celo-clicker-sdk celo-coin-flip-sdk celo-dice-roll-sdk celo-number-guess-sdk vote-battle-utils clicker-stacks-helpers stacks-pix-utils dice-roll-helpers coin-flip-helpers number-guess-helpers"
           for p in $PKGS; do
             DIR=$(mktemp -d)
             cd "$DIR"
